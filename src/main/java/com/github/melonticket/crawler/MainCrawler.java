@@ -10,40 +10,22 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainCrawler implements Runnable{
+@Component
+public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
     private static final String URL = "https://tkglobal.melon.com/main/index.htm?langCd=EN";
     private WebDriver driver;
 
     public MainCrawler() {
-        ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.addArguments("--headless");
-        chromeOptions.addArguments("--window-size=1920,1080");
-        chromeOptions.addArguments("--disable-gpu");
-        chromeOptions.addArguments("--no-sandbox");
 
-        // 添加自定义请求头
-        chromeOptions.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
-        chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
-        chromeOptions.setExperimentalOption("useAutomationExtension", false);
-
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        chromeOptions.setExperimentalOption("mobileEmulation", headers);
-
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        Proxy proxy = new Proxy();
-        proxy.setHttpProxy("127.0.0.1:7890");
-        proxy.setSslProxy("127.0.0.1:7890");
-        capabilities.setCapability(CapabilityType.PROXY, proxy);
-
-        chromeOptions.merge(capabilities);
-        driver = new ChromeDriver(chromeOptions);
     }
 
     @Override
@@ -84,8 +66,36 @@ public class MainCrawler implements Runnable{
             }
         }
     }
-    
-    public void close() {
+
+    @Override
+    public void destroy() throws Exception {
         driver.quit();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("--headless");
+        chromeOptions.addArguments("--window-size=1920,1080");
+        chromeOptions.addArguments("--disable-gpu");
+        chromeOptions.addArguments("--no-sandbox");
+
+        // 添加自定义请求头
+        chromeOptions.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+        chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+        chromeOptions.setExperimentalOption("useAutomationExtension", false);
+
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+        chromeOptions.setExperimentalOption("mobileEmulation", headers);
+
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        Proxy proxy = new Proxy();
+        proxy.setHttpProxy("127.0.0.1:7890");
+        proxy.setSslProxy("127.0.0.1:7890");
+        capabilities.setCapability(CapabilityType.PROXY, proxy);
+
+        chromeOptions.merge(capabilities);
+        driver = new ChromeDriver(chromeOptions);
     }
 }
