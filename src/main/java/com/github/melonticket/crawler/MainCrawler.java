@@ -54,22 +54,35 @@ public class MainCrawler implements Runnable{
         WebElement titleContentElement = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='header']"))
         );
-        String titleContent = titleContentElement.getText();
-        System.out.println(titleContent);
 
         WebElement AVAILABLENOW = driver.findElement(By.xpath("//*[@id=\"conts\"]/div/div[1]/ul"));
         List<WebElement> li = AVAILABLENOW.findElements(By.tagName("li"));
-        for (WebElement element : li) {
-            String text = element.getText();
-            System.out.println(text);
-        }
         WebElement PASTEVENT = driver.findElement(By.xpath("//*[@id=\"conts\"]/div/div[2]/ul"));
         List<WebElement> li2 = PASTEVENT.findElements(By.tagName("li"));
-        for (WebElement element : li2) {
-            String text = element.getText();
-            System.out.println(text);
-        }
+        parseLi(li);
+        parseLi(li2);
+    }
 
+    public void parseLi(List<WebElement> lis) {
+        for (WebElement element : lis) {
+            List<WebElement> img = element.findElements(By.tagName("img"));
+            WebElement webElement = img.get(0);
+            String src = webElement.getDomAttribute("src");
+            WebElement element1 = element.findElement(By.xpath("//div[@class='article']"));
+            WebElement h2 = element1.findElement(By.tagName("h2"));
+            String title = h2.getText();
+            System.out.println("title " + title);
+            WebElement element2 = element1.findElement(By.xpath("//dl[@class='main_concert_info']"));
+            List<WebElement> elements = element2.findElements(By.tagName("dt"));
+            List<WebElement> elements1 = element2.findElements(By.tagName("dd"));
+            for (int i = 0; i < elements.size(); i++) {
+                WebElement dt = elements.get(i);
+                WebElement dd = elements1.get(i);
+                String text =  dt.getAttribute("innerHTML");
+                String text1 = dd.getText();
+                System.out.println(text + ":" + text1);
+            }
+        }
     }
     
     public void close() {
