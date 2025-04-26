@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Component
 public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
@@ -33,16 +34,37 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
         driver.get(URL);
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement titleContentElement = wait.until(
+        wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='header']"))
         );
 
         WebElement AVAILABLENOW = driver.findElement(By.xpath("//*[@id=\"conts\"]/div/div[1]/ul"));
         List<WebElement> li = AVAILABLENOW.findElements(By.tagName("li"));
-        WebElement PASTEVENT = driver.findElement(By.xpath("//*[@id=\"conts\"]/div/div[2]/ul"));
-        List<WebElement> li2 = PASTEVENT.findElements(By.tagName("li"));
         parseLi(li);
-        parseLi(li2);
+        int count = 0;
+        Random random = new Random();
+        while (true) {
+            WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(1));
+            wait1.until(
+                    ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"conts\"]/div/div[2]/ul"))
+            );
+            WebElement PASTEVENT = driver.findElement(By.xpath("//*[@id=\"conts\"]/div/div[2]/ul"));
+            List<WebElement> li2 = PASTEVENT.findElements(By.tagName("li"));
+            int size = li2.size();
+            System.out.println("size ----------------------------------------------" + size);
+            if (size <= count) {
+                break;
+            }
+            List<WebElement> webElements = li2.subList(count, size);
+            parseLi(webElements);
+            WebElement element = driver.findElement(By.xpath("//*[@id=\"mainListMore\"]/a"));
+            element.click();
+            int randomNumber = random.nextInt(1001) + 1000;
+            try {
+                Thread.sleep(randomNumber);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     public void parseLi(List<WebElement> lis) {
@@ -51,11 +73,14 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
             WebElement webElement = img.get(0);
             String src = webElement.getDomAttribute("src");
             System.out.println("src " + src);
-            WebElement element1 = element.findElement(By.xpath("//div[@class='article']"));
+            WebElement element1 = element.findElement(By.className("article"));
             WebElement h2 = element1.findElement(By.tagName("h2"));
+            WebElement a = element1.findElement(By.tagName("a"));
+            String text2 = a.getDomAttribute("class");
             String title = h2.getText();
             System.out.println("title " + title);
-            WebElement element2 = element1.findElement(By.xpath("//dl[@class='main_concert_info']"));
+            System.out.println("a " + text2);
+            WebElement element2 = element1.findElement(By.className("main_concert_info"));
             List<WebElement> elements = element2.findElements(By.tagName("dt"));
             List<WebElement> elements1 = element2.findElements(By.tagName("dd"));
             for (int i = 0; i < elements.size(); i++) {

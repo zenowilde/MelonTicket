@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class CrawlerTask {
     @Autowired
     private MainCrawler mainCrawler;
-    @Scheduled(cron="0/5 * *  * * ? ")
+    @Scheduled(fixedDelay = 5000)
     public void crawler() {
         mainCrawler.run();
     }
