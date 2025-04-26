@@ -50,6 +50,7 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
             List<WebElement> img = element.findElements(By.tagName("img"));
             WebElement webElement = img.get(0);
             String src = webElement.getDomAttribute("src");
+            System.out.println("src " + src);
             WebElement element1 = element.findElement(By.xpath("//div[@class='article']"));
             WebElement h2 = element1.findElement(By.tagName("h2"));
             String title = h2.getText();
