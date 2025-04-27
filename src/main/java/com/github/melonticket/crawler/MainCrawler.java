@@ -1,5 +1,7 @@
 package com.github.melonticket.crawler;
 
+import com.github.melonticket.mapper.ConcertMapper;
+import com.github.melonticket.model.Concert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
@@ -12,8 +14,10 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +28,9 @@ import java.util.Random;
 public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
     private static final String URL = "https://tkglobal.melon.com/main/index.htm?langCd=EN";
     private WebDriver driver;
+
+    @Autowired
+    private ConcertMapper concertMapper;
 
     public MainCrawler() {
 
@@ -69,15 +76,19 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
 
     public void parseLi(List<WebElement> lis) {
         for (WebElement element : lis) {
+            Concert concert = new Concert();
             List<WebElement> img = element.findElements(By.tagName("img"));
             WebElement webElement = img.get(0);
             String src = webElement.getDomAttribute("src");
             System.out.println("src " + src);
+            concert.setImgUrl(src);
             WebElement element1 = element.findElement(By.className("article"));
             WebElement h2 = element1.findElement(By.tagName("h2"));
             WebElement a = element1.findElement(By.tagName("a"));
             String text2 = a.getDomAttribute("class");
             String title = h2.getText();
+            concert.setTitle(title);
+            concert.setType(text2);
             System.out.println("title " + title);
             System.out.println("a " + text2);
             WebElement element2 = element1.findElement(By.className("main_concert_info"));
@@ -89,7 +100,19 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
                 String text =  dt.getAttribute("innerHTML");
                 String text1 = dd.getText();
                 System.out.println(text + ":" + text1);
-            }
+                String lowerCase = text.toLowerCase();
+                try {
+                    Field field = Concert.class.getField(lowerCase);
+                    if (field != null){
+                        field.set(concert, text1);
+                    }
+                } catch (NoSuchFieldException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+            concertMapper.insert(concert);
         }
     }
 
