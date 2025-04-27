@@ -63,6 +63,7 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
                 break;
             }
             List<WebElement> webElements = li2.subList(count, size);
+            count = size;
             parseLi(webElements);
             WebElement element = driver.findElement(By.xpath("//*[@id=\"mainListMore\"]/a"));
             element.click();
@@ -101,15 +102,17 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
                 String text1 = dd.getText();
                 System.out.println(text + ":" + text1);
                 String lowerCase = text.toLowerCase();
+                Field[] declaredFields = Concert.class.getDeclaredFields();
                 try {
-                    Field field = Concert.class.getField(lowerCase);
+                    Field field = Concert.class.getDeclaredField(lowerCase);
                     if (field != null){
+                        field.setAccessible(true);
                         field.set(concert, text1);
                     }
                 } catch (NoSuchFieldException e) {
-                    throw new RuntimeException(e);
+
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+
                 }
             };
             concertMapper.insert(concert);
