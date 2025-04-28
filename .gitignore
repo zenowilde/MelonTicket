@@ -25,6 +25,8 @@ replay_pid*
 .vscode/launch.json
 .vscode/
 
+.idea
+
 # Compiled class file
 *.class
 
