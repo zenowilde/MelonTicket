@@ -15,6 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -31,6 +32,8 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
 
     @Autowired
     private ConcertMapper concertMapper;
+    @Value("${chrome.driver-path}")
+    private String chromeDriverPath;
 
     public MainCrawler() {
 
@@ -126,6 +129,7 @@ public class MainCrawler implements Runnable, InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        System.setProperty("webdriver.chrome.driver", chromeDriverPath);
         ChromeOptions chromeOptions = new ChromeOptions();
         chromeOptions.addArguments("--headless");
         chromeOptions.addArguments("--window-size=1920,1080");
